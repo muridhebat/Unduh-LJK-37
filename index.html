@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Unduh LJK 37</title>
+  <!-- Ganti favicon dengan URL langsung ke gambar -->
+  <link rel="icon" href="https://img.icons8.com/color/96/000000/administrator-male.png" type="image/x-icon">
+  <link rel="shortcut icon" href="https://img.icons8.com/color/96/000000/administrator-male.png" type="image/x-icon">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+    }
+
+    .container {
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .header {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 15px 20px;
+      color: white;
+      text-align: center;
+      display: none; /* Sembunyikan dulu, bisa ditampilkan jika perlu */
+    }
+
+    .app-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .iframe-container {
+      flex: 1;
+      width: 100%;
+      height: calc(100% - 60px);
+      position: relative;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: white;
+    }
+
+    /* Loading indicator */
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: white;
+      z-index: 10;
+    }
+
+    .spinner {
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 4px solid white;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Error message */
+    .error-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      text-align: center;
+      z-index: 20;
+    }
+
+    .error-icon {
+      font-size: 48px;
+      color: #f44336;
+      margin-bottom: 20px;
+    }
+
+    .error-title {
+      font-size: 1.5rem;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .error-message {
+      color: #666;
+      margin-bottom: 20px;
+      max-width: 400px;
+    }
+
+    .retry-btn {
+      background: #1a237e;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin: 5px;
+    }
+
+    .retry-btn:hover {
+      background: #283593;
+    }
+
+    .footer {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 10px;
+      color: white;
+      text-align: center;
+      font-size: 0.8rem;
+      display: none; /* Sembunyikan dulu */
+    }
+
+    /* BAGIAN CSS CONTROL BUTTONS SUDAH DIHAPUS */
+
+    /* Untuk tablet dan desktop */
+    @media (min-width: 768px) {
+      .header, .footer {
+        display: block;
+      }
+      
+      .iframe-container {
+        height: calc(100% - 100px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+      <!-- Loading Indicator -->
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>Memuat aplikasi...</p>
+    </div>
+
+    <!-- Error Container -->
+    <div class="error-container" id="errorContainer">
+      <div class="error-icon">⚠️</div>
+      <div class="error-title">Gagal Memuat Aplikasi</div>
+      <div class="error-message" id="errorMessage">
+        Tidak dapat terhubung ke server. Pastikan Anda terhubung ke internet.
+      </div>
+      <div>
+        <button class="retry-btn" onclick="loadApp()">Coba Lagi</button>
+        <button class="retry-btn" onclick="openDirect()" style="background: #4CAF50;">Buka Langsung</button>
+      </div>
+    </div>
+
+    <!-- Iframe Container -->
+    <div class="iframe-container">
+      <iframe
+        id="appFrame"
+        src=""
+        allow="fullscreen; camera; microphone; display-capture; geolocation;"
+        allowfullscreen
+        scrolling="yes"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals">
+      </iframe>
+    </div>
+
+    <!-- BAGIAN CONTROL BUTTONS SUDAH DIHAPUS -->
+  </div>
+
+  <script>
+    // URL Google Apps Script Anda
+    const APP_URL = "https://script.google.com/macros/s/AKfycbxC1a0QPNHu0RHTvsNXcIEZK_vMCzkKA-YoNHubbkOWPi8VcRH_1sqtSIrVMgnFBKskkQ/exec";
+    
+    // Elemen DOM
+    const appFrame = document.getElementById('appFrame');
+    const loading = document.getElementById('loading');
+    const errorContainer = document.getElementById('errorContainer');
+    const errorMessage = document.getElementById('errorMessage');
+    
+    // Waktu timeout (dalam milidetik)
+    const LOAD_TIMEOUT = 15000;
+    
+    // Load aplikasi saat halaman dimuat
+    window.addEventListener('DOMContentLoaded', loadApp);
+    
+    // Fungsi untuk memuat aplikasi
+    function loadApp() {
+      // Tampilkan loading, sembunyikan error
+      loading.style.display = 'block';
+      errorContainer.style.display = 'none';
+      
+      // Set iframe source
+      appFrame.src = APP_URL;
+      
+      // Set timeout jika loading terlalu lama
+      const timeoutId = setTimeout(() => {
+        showError("Waktu tunggu habis. Server mungkin sedang lambat atau tidak tersedia.");
+      }, LOAD_TIMEOUT);
+      
+      // Event listener ketika iframe berhasil load
+      appFrame.addEventListener('load', function() {
+        clearTimeout(timeoutId);
+        loading.style.display = 'none';
+        console.log('Aplikasi berhasil dimuat');
+      });
+      
+      // Event listener untuk error
+      appFrame.addEventListener('error', function() {
+        clearTimeout(timeoutId);
+        showError("Gagal memuat aplikasi. Cek koneksi internet Anda.");
+      });
+    }
+    
+    // Fungsi untuk menampilkan error
+    function showError(message) {
+      loading.style.display = 'none';
+      errorMessage.textContent = message;
+      errorContainer.style.display = 'flex';
+      appFrame.src = ''; // Kosongkan iframe
+    }
+    
+    // Fungsi untuk refresh aplikasi
+    function refreshApp() {
+      loadApp();
+    }
+    
+    // Fungsi untuk buka langsung di tab baru
+    function openDirect() {
+      window.open(APP_URL, '_blank');
+    }
+    
+    // Fungsi untuk toggle fullscreen (Tidak dipakai karena tombol dihapus)
+    function toggleFullscreen() {
+      const container = document.querySelector('.container');
+      
+      if (!document.fullscreenElement) {
+        if (container.requestFullscreen) {
+          container.requestFullscreen();
+        } else if (container.webkitRequestFullscreen) {
+          container.webkitRequestFullscreen();
+        } else if (container.msRequestFullscreen) {
+          container.msRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+          document.msExitFullscreen();
+        }
+      }
+    }
+    
+    // Deteksi jika keluar dari fullscreen
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('msfullscreenchange', handleFullscreenChange);
+    
+    function handleFullscreenChange() {
+      // Tambahkan logika jika perlu saat keluar fullscreen
+    }
+    
+    // Deteksi perubahan koneksi
+    window.addEventListener('online', function() {
+      console.log('Koneksi internet tersedia');
+      // Jika error tampil, coba reload otomatis
+      if (errorContainer.style.display === 'flex') {
+        loadApp();
+      }
+    });
+    
+    window.addEventListener('offline', function() {
+      console.log('Koneksi internet terputus');
+      showError("Koneksi internet terputus. Periksa jaringan Anda.");
+    });
+    
+    // Cek koneksi saat pertama kali load
+    if (!navigator.onLine) {
+      showError("Anda sedang offline. Periksa koneksi internet Anda.");
+    }
+    
+    // Optional: Auto-refresh setiap 5 menit untuk sinkronisasi data
+    setInterval(() => {
+      if (document.visibilityState === 'visible' && !errorContainer.style.display === 'flex') {
+        console.log('Auto-refresh aplikasi');
+        appFrame.contentWindow.location.reload();
+      }
+    }, 300000); // 5 menit
+  </script>
+</body>
+</html>
